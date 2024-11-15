@@ -1,0 +1,102 @@
+/**
+ * A simple binary search tree
+ */
+public class BST {
+    /** The entry point to the tree */
+    private TreeNode root;
+    /** Count of nodes in the tree */
+    private int numberOfNodes;
+    /** Longest and shortest words stored in the tree */
+    private String longest;
+    private String shortest;
+
+    /** Default constructor */
+    public BST() {
+        this.root = null;
+        this.numberOfNodes = 0;
+        this.shortest = null;
+        this.longest = null;
+    } // default constructor
+
+    // Method to check if a given target is present in the tree
+    public boolean contains(String target) {
+        return contains(this.root, target);
+    }
+
+    private boolean contains(TreeNode node, String target) {
+        if (node == null) return false;
+        int comparison = target.compareTo(node.getWord());
+        if (comparison == 0) return true; // target found
+        else if (comparison < 0) return contains(node.getLeft(), target); // go left
+        else return contains(node.getRight(), target); // go right
+    }
+
+    // Method to provide a descriptive text representation of the tree
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        toString(this.root, sb, 0);
+        return sb.toString();
+    }
+
+    private void toString(TreeNode node, StringBuilder sb, int depth) {
+        if (node == null) return;
+        toString(node.getRight(), sb, depth + 1);
+        sb.append("  ".repeat(depth)).append(node.getWord()).append("\n");
+        toString(node.getLeft(), sb, depth + 1);
+    }
+
+    // Method to remove a node with a specific string target from the tree
+    public TreeNode remove(String target) {
+        return remove(target, this.root, null);
+    }
+
+    private TreeNode remove(String target, TreeNode node, TreeNode parent) {
+        if (node == null) return null;
+
+        int comparison = target.compareTo(node.getWord());
+        if (comparison < 0) {
+            return remove(target, node.getLeft(), node);
+        } else if (comparison > 0) {
+            return remove(target, node.getRight(), node);
+        } else {
+            // Node with target found
+            TreeNode removedNode = node;
+            if (node.hasLeft() && node.hasRight()) {
+                // Node has two children
+                TreeNode successor = getMin(node.getRight());
+                node.setWord(successor.getWord());
+                remove(successor.getWord(), node.getRight(), node);
+            } else if (node.hasLeft() || node.hasRight()) {
+                // Node has one child
+                TreeNode child = (node.hasLeft()) ? node.getLeft() : node.getRight();
+                if (parent == null) {
+                    this.root = child;
+                } else if (parent.getLeft() == node) {
+                    parent.setLeft(child);
+                } else {
+                    parent.setRight(child);
+                }
+            } else {
+                // Node has no children
+                if (parent == null) {
+                    this.root = null;
+                } else if (parent.getLeft() == node) {
+                    parent.setLeft(null);
+                } else {
+                    parent.setRight(null);
+                }
+            }
+            this.numberOfNodes--;
+            return removedNode;
+        }
+    }
+
+    private TreeNode getMin(TreeNode node) {
+        while (node.hasLeft()) {
+            node = node.getLeft();
+        }
+        return node;
+    }
+
+    // Other methods and accessors remain the same
+}
